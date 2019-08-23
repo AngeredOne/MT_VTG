@@ -40,6 +40,8 @@ public class LevelBehavior : MonoBehaviour
     private LevelModel level_m;
     private ShipModel ship_m;
 
+    private CompositeDisposable disposables;
+
     #endregion
 
     #region BASE_INTERFACE
@@ -62,7 +64,7 @@ public class LevelBehavior : MonoBehaviour
 
         isEnabled = true;
 
-        Observable.Timer(System.TimeSpan.FromSeconds(SpawnTimeOut)).Repeat().Subscribe(_ => Spawn());
+        Observable.Timer(System.TimeSpan.FromSeconds(SpawnTimeOut)).Repeat().Subscribe(_ => Spawn()).AddTo(this);
     }
 
     /// <summary>
@@ -100,7 +102,8 @@ public class LevelBehavior : MonoBehaviour
     protected virtual void Spawn()
     {
         var obj = cache.GetObjectByTag("asteroid");
-        if(obj != null) obj.transform.position = new Vector3(135, 630, -55);
+        var viewObj = GameObject.Find("GameViewObject");
+        if (obj != null) obj.transform.position = new Vector3(Random.Range(-90, 90), 150, viewObj.transform.position.z - 12);
     }
 
     void Update()
@@ -108,18 +111,31 @@ public class LevelBehavior : MonoBehaviour
         if (isEnabled)
         {
             way.Value += 0.1d;
-            image.transform.Translate(0, -1, 0);
-            image2.transform.Translate(0, -1, 0);
+            image.transform.Translate(0, -0.7f, 0);
+            image2.transform.Translate(0, -0.7f, 0);
 
-            if (image.transform.position.y <= -900)
+            if (image.transform.localPosition.y <= -865)
             {
-                image.transform.position = new Vector3(image.transform.position.x, 1500, image.transform.position.z);
+                image.transform.localPosition = new Vector3(0, 1480, 0);
             }
 
-            if (image2.transform.position.y <= -900)
+            if (image2.transform.localPosition.y <= -865)
             {
-                image2.transform.position = new Vector3(image2.transform.position.x, 1500, image2.transform.position.z);
+                image2.transform.localPosition = new Vector3(0, 1480, 0);
             }
+        }
+    }
+
+    void OnEnable()
+    { 
+        disposables = new CompositeDisposable();
+    }
+
+    void OnDisable()
+    { 
+        if (disposables != null)
+        {
+            disposables.Dispose();
         }
     }
 

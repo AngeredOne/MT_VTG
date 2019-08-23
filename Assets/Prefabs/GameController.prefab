@@ -43,9 +43,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5938fca1d537f37728e1c83e8e7f9a81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  viewOfGame: {fileID: 3726857947315158823, guid: 9dcf53a87baf66e738bcbbc8d36e80c8,
+  mainMenuView: {fileID: 6754250390897027771, guid: b879f9aa6c5e8754f82f49cb4d36f0fb,
     type: 3}
-  ship: {fileID: 4777480835557006604, guid: b2c3e951d047196b1bbcdf8121e02992, type: 3}
+  ship: {fileID: 2929138189497520012, guid: b2c3e951d047196b1bbcdf8121e02992, type: 3}
   levels:
   - {fileID: 9136662919865709538, guid: 77cdd7f041eb59bafba9b00b81183163, type: 3}
+  - {fileID: 3912637349516601013, guid: 0caffee791cc41942aabb23cdb7cf752, type: 3}
   saveName: mysave

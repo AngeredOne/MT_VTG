@@ -44,5 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initializers:
-  - c_obj: {fileID: 1507835844862091599, guid: 76a8a6c84104f8d00ae3648ebdfe2e80, type: 3}
-    count: 10
+  - c_obj: {fileID: 8971100636689482431, guid: 76a8a6c84104f8d00ae3648ebdfe2e80, type: 3}
+    count: 15
+  - c_obj: {fileID: 7545233439217118367, guid: 865b7752f3ab57120acc929ed059cefd, type: 3}
+    count: 20

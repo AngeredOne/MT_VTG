@@ -37,7 +37,7 @@ public class ObjectCache : MonoBehaviour
             {
                 var obj = Instantiate(initilizer.c_obj.gameObject);
                 obj.SetActive(false);
-
+                           
                 initilizer.c_obj.Reset();
                 objects.Add(obj.GetComponent<CachableObject>());
             }

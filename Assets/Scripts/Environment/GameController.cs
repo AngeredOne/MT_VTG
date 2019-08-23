@@ -13,11 +13,13 @@ using UniRx;
 
 public class GameController : MonoBehaviour
 {
-    public GameView viewOfGame;
-    public Button button;
-
+    public MenuView mainMenuView;
     public ShipController ship;
     public List<LevelController> levels = new List<LevelController>();
+
+    private IReactiveProperty<int> choisedLevelInd = new ReactiveProperty<int>(0);
+    private LevelController loadedLevel = null;
+    private CompositeDisposable disposables;
 
     public string saveName = "mysave";
 
@@ -25,7 +27,7 @@ public class GameController : MonoBehaviour
 
     void Awake()
     {
-        if(inst != null)
+        if (inst != null)
         {
             Destroy(gameObject);
         }
@@ -34,6 +36,36 @@ public class GameController : MonoBehaviour
             inst = this;
             DontDestroyOnLoad(gameObject);
         }
+    }
+
+    public void Init()
+    {
+        var mainMenuViewInstance = Instantiate(mainMenuView.gameObject).GetComponent<MenuView>();
+        disposables = new CompositeDisposable();
+
+        mainMenuViewInstance.playButton.OnClickAsObservable().Subscribe(_ =>
+        {
+            SceneManager.sceneLoaded += OnLevelLoaded;
+            SceneManager.LoadScene("GameScene");
+            disposables.Dispose();
+        }
+        ).AddTo(disposables);
+
+        choisedLevelInd.AsObservable().Subscribe(x =>
+        {
+            mainMenuViewInstance.preview.sprite = levels[x].GetBehavior().preview;
+            mainMenuViewInstance.levelStateText.text = levels[x].GetModel().state.ToString();
+        }).AddTo(disposables);
+
+        Observable.EveryUpdate().Where(_ => (levels.Count > choisedLevelInd.Value + 1) && (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))).Subscribe(_ =>
+        {
+            choisedLevelInd.Value++;
+        }).AddTo(disposables);
+
+        Observable.EveryUpdate().Where(_ => (choisedLevelInd.Value - 1 > -1) && (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))).Subscribe(_ =>
+        {
+            choisedLevelInd.Value--;
+        }).AddTo(disposables);
     }
 
     public void Save()
@@ -56,12 +88,8 @@ public class GameController : MonoBehaviour
 
     void Start()
     {
-        button.OnClickAsObservable().Subscribe(_ =>
-            {
-                SceneManager.sceneLoaded += OnLevelLoaded;
-                SceneManager.LoadScene("GameScene");
-            }
-        );
+        Init();
+
         if (File.Exists(Application.persistentDataPath + "/Saves/ " + saveName + ".cube"))
         {
             BinaryFormatter bf = new BinaryFormatter();
@@ -81,23 +109,23 @@ public class GameController : MonoBehaviour
     {
         if (scene.name == "GameScene")
         {
-            LevelController syncLC = levels[0];
+            LevelController syncLC = levels[choisedLevelInd.Value];
 
-            // Создание отображения(для связки с LevelBehavior). Можно было бы оставить его на сцене и тут работать find'ом, но так вариативнее.
             var viewObject = GameObject.Find("GameViewObject");
             // Через указанный LevelController создается его gameObject, после чего можно будет связаться с поведением уровня.
             var levelObject = Instantiate(syncLC.gameObject);
             // Через указанный ShipController создается его gameObject. Это нужно только для разных кораблей(чтобы ни 1 статичный вечно тусил на сцене).
-            var shipObject = Instantiate(ship.gameObject);
+            var shipObject = Instantiate(ship.gameObject, new Vector3(0, -32, -10), new Quaternion());
 
             // Что это такое? Это синхронизация пулла уровней, который настраивается в редакторе и относится к EditorRuntime,
             // и объекта уровня, создаваемоего при старте игровой сцены. В дальнейшем уровень модифицирует модель, которая может отображаться в главной сцене\сохраняться и т.д.
             var lc = levelObject.GetComponent<LevelController>();
+            loadedLevel = lc;
             lc.SetModel(syncLC.GetModel());
 
             // Binding //
 
-            ship.view = viewObject.GetComponent<GameView>();
+            shipObject.GetComponent<ShipController>().view = viewObject.GetComponent<GameView>();
             lc.view = viewObject.GetComponent<GameView>();
 
             lc.GetModel().isPassed.Where(x => x == true).Subscribe(_ => Save());
@@ -108,10 +136,14 @@ public class GameController : MonoBehaviour
 
             levelObject.GetComponentInChildren<LevelController>().StartLevel(ship.GetModel());
         }
+        else
+        {
+            inst.Init();
+        }
     }
 
-    void StartLevel()
+    public LevelController GetLevelController()
     {
-
+        return loadedLevel;
     }
 }

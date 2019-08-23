@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class CachableObject : MonoBehaviour
 {
-    public bool isLoaded {get; set;} = false;
-
+    [HideInInspector]
     public void Reset()
     {
         gameObject.transform.position = new Vector3(1000, 0, -100);
-        isLoaded = false;
+        gameObject.SetActive(false);
     }
 }
