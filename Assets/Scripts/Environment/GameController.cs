@@ -45,7 +45,6 @@ public class GameController : MonoBehaviour
 
         mainMenuViewInstance.playButton.OnClickAsObservable().Subscribe(_ =>
         {
-            SceneManager.sceneLoaded += OnLevelLoaded;
             SceneManager.LoadScene("GameScene");
             disposables.Dispose();
         }
@@ -89,19 +88,19 @@ public class GameController : MonoBehaviour
     void Start()
     {
         Init();
+        SceneManager.sceneLoaded += OnLevelLoaded;
 
         if (File.Exists(Application.persistentDataPath + "/Saves/ " + saveName + ".cube"))
         {
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(Application.persistentDataPath + "/Saves/ " + saveName + ".cube", FileMode.Open);
             GameSave save = (GameSave)bf.Deserialize(file);
+            file.Close();
 
             for (int i = 0; i < save.levels.Count; ++i)
             {
                 levels[i].SetModel(save.levels[i]);
             }
-
-            file.Close();
         }
     }
 
@@ -128,7 +127,7 @@ public class GameController : MonoBehaviour
             shipObject.GetComponent<ShipController>().view = viewObject.GetComponent<GameView>();
             lc.view = viewObject.GetComponent<GameView>();
 
-            lc.GetModel().isPassed.Where(x => x == true).Subscribe(_ => Save());
+            //lc.GetModel().isPassed.Where(x => x == true).Subscribe(_ => );
 
             // Устанавливаем скроллящиеся картинки
             var scrollImages = viewObject.GetComponentsInChildren<Image>();
@@ -138,6 +137,7 @@ public class GameController : MonoBehaviour
         }
         else
         {
+            Save();
             inst.Init();
         }
     }

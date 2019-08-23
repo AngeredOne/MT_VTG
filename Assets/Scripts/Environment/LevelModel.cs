@@ -17,7 +17,8 @@ public class LevelModel
     /// Каждый инстанс поведения уровня может имплементировать данное свойство, иначе будет вечный левел(офк можно и так делать, спец. уровень - испытание)
     /// </summary>
     /// <value></value>
-    
+
+    [field: NonSerialized]
     public IReadOnlyReactiveProperty<bool> isPassed { get; set; }
 
     public LevelModel()

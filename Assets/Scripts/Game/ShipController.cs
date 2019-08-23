@@ -51,7 +51,7 @@ public class ShipController : MonoBehaviour
         {
             var ship_p = gameObject.transform.position;
 
-            bullet.transform.position = new Vector3(ship_p.x + 5, ship_p.y + 15, ship_p.z);
+            bullet.transform.position = new Vector3(ship_p.x + 4, ship_p.y + 15, ship_p.z);
             rateFromLast = 0;
         }
     }

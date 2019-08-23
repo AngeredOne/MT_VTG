@@ -82,6 +82,7 @@ public class LevelBehavior : MonoBehaviour
         level_m.isPassed = way.AsObservable().Select(x => x >= needToGo).ToReactiveProperty();
         level_m.isPassed.Where(x => x == true).Subscribe(_ =>
         {
+            level_m.state = LevelState.Passed;
             isEnabled = false;
             SceneManager.LoadScene("MainScene");
         });
